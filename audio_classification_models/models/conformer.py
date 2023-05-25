@@ -314,7 +314,7 @@ class ConformerEncoder(tf.keras.Model):
     def __init__(
         self,
         subsampling={'type': 'caspnet','filters': 144,'kernel_size': 3,'strides': 2},
-        caspnet_subsampling={'type': 'caspnet','filters': 256,'kernel_size': 9,'strides': 1},
+        caspnet_subsampling={'filters': 256,'kernel_size': 9,'strides': 1,'padding': 'valid'},
         positional_encoding="sinusoid",
         dmodel=144,
         num_blocks=16,
@@ -333,7 +333,7 @@ class ConformerEncoder(tf.keras.Model):
     ):
         super(ConformerEncoder, self).__init__(name=name, **kwargs)
 
-        subsampling_name = subsampling.pop("type", "caspnet")
+        subsampling_name = subsampling_name = subsampling["type"] #subsampling.pop("type", "caspnet")
         if subsampling_name == "vgg":
             subsampling_class = VggSubsampling
             self.conv_subsampling = subsampling_class(
