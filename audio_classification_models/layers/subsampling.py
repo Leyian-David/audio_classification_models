@@ -182,7 +182,7 @@ class CaspNetSubsampling(tf.keras.layers.Layer):
         kernel_size: int or list or tuple = 9,
         kernel_regularizer=None,
         bias_regularizer=None,
-        num_classes: int,
+        num_classes: int=32,
         name="CaspNetSubsampling",
 #         conv1_params = {
 #             "filters": 256,
