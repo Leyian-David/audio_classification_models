@@ -2,6 +2,7 @@
 import tensorflow as tf
 
 from ..utils import math_util, shape_util
+from capsulelayers import CapsuleLayer, PrimaryCap, Length, Mask
 
 
 class TimeReduction(tf.keras.layers.Layer):
@@ -171,3 +172,59 @@ class Conv2dSubsampling(tf.keras.layers.Layer):
         conf.update(self.conv1.get_config())
         conf.update(self.conv2.get_config())
         return conf
+    
+class CaspNetSubsampling(tf.keras.layers.Layer):
+    def __init__(
+        self,
+        filters: int = 256,
+        strides: list or tuple or int = 1,
+        padding: str = "valid",
+        kernel_size: int or list or tuple = 9,
+        kernel_regularizer=None,
+        bias_regularizer=None,
+        name="CaspNetSubsampling",
+#         conv1_params = {
+#             "filters": 256,
+#             "kernel_size": 9,
+#             "strides": strides,
+#             "padding": padding,
+#             "activation": "relu",
+#             "kernel_regularizer": kernel_regularizer,
+#             "bias_regularizer": bias_regularizer,
+#             "name": f"{name}_conv1",
+#         },
+        **kwargs,
+    ):
+        super(CaspNetSubsampling, self).__init__(name=name, **kwargs)
+        self.conv1 = tf.keras.layers.Conv2D(
+            filters=filters,
+            kernel_size=kernel_size,
+            strides=strides,
+            padding="valid",
+            name=f"{name}_conv1",
+            activation="relu",
+            kernel_regularizer=kernel_regularizer,
+            bias_regularizer=bias_regularizer,
+        )
+#         self.conv1 = tf.keras.layers.Conv2D(**conv1_params)
+        
+    def call(
+        self,
+        inputs,
+        training=False,
+        **kwargs,
+    ):
+        
+        # Layer 1: Just a conventional Conv2D layer
+        outputs = self.conv1(inputs, training=training)
+        # Layer 2: Conv2D layer with `squash` activation, then reshape to [None, num_capsule, dim_capsule]
+        primarycaps = PrimaryCap(outputs, dim_capsule=8, n_channels=32, kernel_size=9, strides=2, padding='valid')
+        # Layer 3: Capsule layer. Routing algorithm works here.
+        digitcaps = CapsuleLayer(num_capsule=n_class, dim_capsule=16, routings=routings, name='digitcaps')(primarycaps)
+        return digitcaps
+    
+    def get_config(self):
+        conf = super(CaspNetSubsampling, self).get_config()
+        conf.update(self.conv1.get_config())
+        return conf
+        
