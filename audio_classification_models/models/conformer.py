@@ -355,7 +355,7 @@ class ConformerEncoder(tf.keras.Model):
             self.conv_subsampling = subsampling_class(
                 **caspnet_subsampling,
                 name=f"{name}_subsampling",
-                num_classes = num_classes
+                num_classes = num_classes,
                 kernel_regularizer=kernel_regularizer,
                 bias_regularizer=bias_regularizer,
             )
