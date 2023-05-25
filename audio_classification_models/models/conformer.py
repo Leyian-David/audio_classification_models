@@ -333,7 +333,7 @@ class ConformerEncoder(tf.keras.Model):
     ):
         super(ConformerEncoder, self).__init__(name=name, **kwargs)
 
-        subsampling_name = subsampling_name = subsampling["type"] #subsampling.pop("type", "caspnet")
+        subsampling_name = subsampling["type"]
         if subsampling_name == "vgg":
             subsampling_class = VggSubsampling
             self.conv_subsampling = subsampling_class(
