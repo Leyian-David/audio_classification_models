@@ -4,7 +4,7 @@ from ..utils import shape_util, weights
 from ..activations.glu import GLU
 from ..layers.multihead_attention import MultiHeadAttention, RelPositionMultiHeadAttention
 from ..layers.positional_encoding import PositionalEncoding, PositionalEncodingConcat
-from ..layers.subsampling import Conv2dSubsampling, VggSubsampling
+from ..layers.subsampling import Conv2dSubsampling, CaspNetSubsampling, VggSubsampling
 
 L2 = tf.keras.regularizers.l2(1e-6)
 URL = "https://github.com/awsaf49/audio_classification_models/releases/download/v1.0.8/conformer-encoder.h5"
@@ -313,7 +313,7 @@ class ConformerBlock(tf.keras.layers.Layer):
 class ConformerEncoder(tf.keras.Model):
     def __init__(
         self,
-        subsampling={'type': 'conv2d','filters': 144,'kernel_size': 3,'strides': 2},
+        subsampling={'type': 'caspnet','filters': 144,'kernel_size': 3,'strides': 2},
         positional_encoding="sinusoid",
         dmodel=144,
         num_blocks=16,
@@ -331,13 +331,15 @@ class ConformerEncoder(tf.keras.Model):
     ):
         super(ConformerEncoder, self).__init__(name=name, **kwargs)
 
-        subsampling_name = subsampling.pop("type", "conv2d")
+        subsampling_name = subsampling.pop("type", "caspnet")
         if subsampling_name == "vgg":
             subsampling_class = VggSubsampling
         elif subsampling_name == "conv2d":
             subsampling_class = Conv2dSubsampling
+        elif subsampling_name == "caspnet":
+            subsampling_class = CaspNetSubsampling
         else:
-            raise ValueError("subsampling must be either  'conv2d' or 'vgg'")
+            raise ValueError("subsampling must be either  'conv2d', 'vgg' or 'caspnet'")
 
         self.conv_subsampling = subsampling_class(
             **subsampling,
