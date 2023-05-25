@@ -2,7 +2,7 @@
 import tensorflow as tf
 
 from ..utils import math_util, shape_util
-from capsulelayers import CapsuleLayer, PrimaryCap, Length, Mask
+from capsulenet import CapsuleLayer, PrimaryCap, Length, Mask
 
 
 class TimeReduction(tf.keras.layers.Layer):
