@@ -314,7 +314,7 @@ class ConformerEncoder(tf.keras.Model):
     def __init__(
         self,
         subsampling={'type': 'caspnet','filters': 144,'kernel_size': 3,'strides': 2},
-        caspnet_subsampling={'filters': 256,'kernel_size': 9,'strides': 1,'padding': 'valid'},
+        caspnet_subsampling={'type': 'caspnet','filters': 256,'kernel_size': 9,'strides': 1},
         positional_encoding="sinusoid",
         dmodel=144,
         num_blocks=16,
