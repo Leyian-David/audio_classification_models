@@ -197,6 +197,7 @@ class CaspNetSubsampling(tf.keras.layers.Layer):
         **kwargs,
     ):
         super(CaspNetSubsampling, self).__init__(name=name, **kwargs)
+        self.num_classes = num_classes
         self.conv1 = tf.keras.layers.Conv2D(
             filters=filters,
             kernel_size=kernel_size,
@@ -221,7 +222,7 @@ class CaspNetSubsampling(tf.keras.layers.Layer):
         # Layer 2: Conv2D layer with `squash` activation, then reshape to [None, num_capsule, dim_capsule]
         primarycaps = PrimaryCap(outputs, dim_capsule=8, n_channels=32, kernel_size=9, strides=2, padding='valid')
         # Layer 3: Capsule layer. Routing algorithm works here.
-        digitcaps = CapsuleLayer(num_capsule=num_classes, dim_capsule=16, routings=routings, name='digitcaps')(primarycaps)
+        digitcaps = CapsuleLayer(num_capsule=self.num_classes, dim_capsule=16, routings=routings, name='digitcaps')(primarycaps)
         return digitcaps
     
     def get_config(self):
