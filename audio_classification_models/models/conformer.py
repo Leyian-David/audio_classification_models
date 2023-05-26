@@ -324,6 +324,7 @@ class ConformerEncoder(tf.keras.Model):
         num_heads=4,
         num_classes=32,
         routings=4,
+        bs = 32,
         kernel_size=32,
         depth_multiplier=1,
         fc_factor=0.5,
