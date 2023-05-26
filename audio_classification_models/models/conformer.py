@@ -359,6 +359,7 @@ class ConformerEncoder(tf.keras.Model):
                 name=f"{name}_subsampling",
                 num_classes = num_classes,
                 routings = routings,
+                bs = 32,
                 kernel_regularizer=kernel_regularizer,
                 bias_regularizer=bias_regularizer,
             )
