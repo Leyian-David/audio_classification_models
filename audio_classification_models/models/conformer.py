@@ -323,6 +323,7 @@ class ConformerEncoder(tf.keras.Model):
         head_size=36,
         num_heads=4,
         num_classes=32,
+        routings=4,
         kernel_size=32,
         depth_multiplier=1,
         fc_factor=0.5,
@@ -357,6 +358,7 @@ class ConformerEncoder(tf.keras.Model):
                 **caspnet_subsampling,
                 name=f"{name}_subsampling",
                 num_classes = num_classes,
+                routings = routings,
                 kernel_regularizer=kernel_regularizer,
                 bias_regularizer=bias_regularizer,
             )
