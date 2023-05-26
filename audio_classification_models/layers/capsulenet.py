@@ -92,10 +92,11 @@ class CapsuleLayer(layers.Layer):
     :param dim_capsule: dimension of the output vectors of the capsules in this layer
     :param routings: number of iterations for the routing algorithm
     """
-    def __init__(self, num_capsule, dim_capsule, routings=3,
+    def __init__(self, bs,  num_capsule, dim_capsule, routings=3,
                  kernel_initializer='glorot_uniform',
                  **kwargs):
         super(CapsuleLayer, self).__init__(**kwargs)
+        self.bs = bs
         self.num_capsule = num_capsule
         self.dim_capsule = dim_capsule
         self.routings = routings
@@ -134,7 +135,8 @@ class CapsuleLayer(layers.Layer):
         # Begin: Routing algorithm ---------------------------------------------------------------------#
         # The prior for coupling coefficient, initialized as zeros.
         # b.shape = [None, self.num_capsule, 1, self.input_num_capsule].
-        b = tf.zeros(shape=[inputs.shape[0], self.num_capsule, 1, self.input_num_capsule])
+#         b = tf.zeros(shape=[inputs.shape[0], self.num_capsule, 1, self.input_num_capsule])
+        b = tf.zeros(shape=[self.bs, self.num_capsule, 1, self.input_num_capsule])
 
         assert self.routings > 0, 'The routings should be > 0.'
         for i in range(self.routings):
