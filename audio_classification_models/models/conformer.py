@@ -313,7 +313,7 @@ class ConformerBlock(tf.keras.layers.Layer):
 class ConformerEncoder(tf.keras.Model):
     def __init__(
         self,
-        subsampling={'type': 'caspnet','filters': 144,'kernel_size': 3,'strides': 2},
+        subsampling={'filters': 144,'kernel_size': 3,'strides': 2},
         caspnet_subsampling={'filters': 256,'kernel_size': 9,'strides': 1,'padding': 'valid'},
         positional_encoding="sinusoid",
         subsampling_type='vgg',
