@@ -60,3 +60,24 @@ class CCTTokenizer(layers.Layer):
             return embed_layer, sequence_length
         else:
             return None
+
+# Referred from: github.com:rwightman/pytorch-image-models.
+class StochasticDepth(layers.Layer):
+    def __init__(self, drop_prop, **kwargs):
+        super(StochasticDepth, self).__init__(**kwargs)
+        self.drop_prob = drop_prop
+
+    def call(self, x, training=None):
+        if training:
+            keep_prob = 1 - self.drop_prob
+            shape = (tf.shape(x)[0],) + (1,) * (tf.shape(x).shape[0] - 1)
+            random_tensor = keep_prob + tf.random.uniform(shape, 0, 1)
+            random_tensor = tf.floor(random_tensor)
+            return (x / keep_prob) * random_tensor
+        return x
+    
+def mlp(x, hidden_units, dropout_rate):
+    for units in hidden_units:
+        x = layers.Dense(units, activation=tf.nn.gelu)(x)
+        x = layers.Dropout(dropout_rate)(x)
+    return x
