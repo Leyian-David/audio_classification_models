@@ -466,7 +466,7 @@ class ConformerEncoder(tf.keras.Model):
             )(x1, x1)
 
             # Skip connection 1.
-            attention_output = StochasticDepth(dpr[i], training=training)(attention_output)
+            attention_output = StochasticDepth(dpr[i])(attention_output)
             x2 = layers.Add()([attention_output, encoded_patches])
 
             # Layer normalization 2.
@@ -476,7 +476,7 @@ class ConformerEncoder(tf.keras.Model):
             x3 = mlp(x3, hidden_units=self.transformer_units, dropout_rate=0.1)
 
             # Skip connection 2.
-            x3 = StochasticDepth(dpr[i], training=training)(x3)
+            x3 = StochasticDepth(dpr[i])(x3)
             encoded_patches = tf.keras.layers.Add()([x3, x2])
 
         # Apply sequence pooling.
