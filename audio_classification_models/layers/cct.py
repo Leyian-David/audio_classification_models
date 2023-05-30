@@ -66,11 +66,11 @@ class CCTTokenizer(layers.Layer):
             sequence_length = tf.shape(dummy_outputs)[1]
             projection_dim = tf.shape(dummy_outputs)[-1]
 
-            embed_layer = tf.keras.layers.Embedding(
-                input_dim=sequence_length, output_dim=projection_dim
-            )
-            return embed_layer, sequence_length
-#             return sequence_length
+#             embed_layer = tf.keras.layers.Embedding(
+#                 input_dim=sequence_length, output_dim=projection_dim
+#             )
+#             return embed_layer, sequence_length
+            return projection_dim, sequence_length
         else:
             return None
 
