@@ -334,7 +334,7 @@ class ConformerEncoder(tf.keras.Model):
         num_heads=4,
         positional_emb = True,
         positional_encoding="sinusoid",
-        projection_dim = dmodel,
+        projection_dim = 128,
         routings=4,
         stochastic_depth_rate = 0.1,
         subsampling={'filters': 144,'kernel_size': 3,'strides': 2},
