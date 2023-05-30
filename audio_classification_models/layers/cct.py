@@ -41,8 +41,12 @@ class CCTTokenizer(layers.Layer):
 
         self.positional_emb = positional_emb
 
-    def call(self, images):
-        outputs = self.conv_model(images)
+    def call(
+        self, 
+        training=False, 
+        images
+    ):
+        outputs = self.conv_model(images, training=training)
         # After passing the images through our mini-network the spatial dimensions
         # are flattened to form sequences.
         reshaped = tf.reshape(
