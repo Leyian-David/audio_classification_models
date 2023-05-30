@@ -5,6 +5,7 @@ from ..activations.glu import GLU
 from ..layers.multihead_attention import MultiHeadAttention, RelPositionMultiHeadAttention
 from ..layers.positional_encoding import PositionalEncoding, PositionalEncodingConcat
 from ..layers.subsampling import Conv2dSubsampling, CaspNetSubsampling, VggSubsampling
+from ..layers.cct import CCTTokenizer, StochasticDepth, mlp
 
 L2 = tf.keras.regularizers.l2(1e-6)
 URL = "https://github.com/awsaf49/audio_classification_models/releases/download/v1.0.8/conformer-encoder.h5"
@@ -313,25 +314,36 @@ class ConformerBlock(tf.keras.layers.Layer):
 class ConformerEncoder(tf.keras.Model):
     def __init__(
         self,
-        subsampling={'filters': 144,'kernel_size': 3,'strides': 2},
-        caspnet_subsampling={'filters': 256,'kernel_size': 9,'strides': 1,'padding': 'valid'},
-        positional_encoding="sinusoid",
-        subsampling_type='vgg',
-        dmodel=144,
-        num_blocks=16,
-        mha_type="relmha",
-        head_size=36,
-        num_heads=4,
-        num_classes=32,
-        routings=4,
-        bs = 32,
-        kernel_size=32,
-        depth_multiplier=1,
-        fc_factor=0.5,
-        dropout=0.1,
-        kernel_regularizer=L2,
         bias_regularizer=L2,
+        bs = 32,
+        caspnet_subsampling={'filters': 256,'kernel_size': 9,'strides': 1,'padding': 'valid'},
+        conv_layers = 2,
+        cct_num_heads = 2,
+        depth_multiplier=1,
+        dmodel=144,
+        dropout=0.1,
+        fc_factor=0.5,
+        head_size=36,
+        image_size = 128,
+        kernel_size=32,
+        kernel_regularizer=L2,
+        mha_type="relmha",
         name="conformer_encoder",
+        num_blocks=16,
+        num_classes=32,
+        num_heads=4,
+        positional_emb = True,
+        positional_encoding="sinusoid",
+        projection_dim = dmodel,
+        routings=4,
+        stochastic_depth_rate = 0.1,
+        subsampling={'filters': 144,'kernel_size': 3,'strides': 2},
+        subsampling_type='conv2d',
+        transformer_layers=2,
+        transformer_units = [
+            projection_dim,
+            projection_dim,
+        ],
         **kwargs,
     ):
         super(ConformerEncoder, self).__init__(name=name, **kwargs)
@@ -414,6 +426,13 @@ class ConformerEncoder(tf.keras.Model):
                 name=f"{name}_block_{i}",
             )
             self.conformer_blocks.append(conformer_block)
+            
+        self.cct_num_heads = cct_num_heads
+        self.cct_tokenizer = CCTTokenizer(num_conv_layers=conv_layers, positional_emb=positional_emb,)
+        self.image_size = image_size
+        self.projection_dim = projection_dim
+        self.stochastic_depth_rate = stochastic_depth_rate
+        self.transformer_layers = transformer_layers
 
     def call(
         self,
@@ -423,10 +442,55 @@ class ConformerEncoder(tf.keras.Model):
         **kwargs,
     ):
         # input with shape [B, T, V1, V2]
-        outputs = self.conv_subsampling(inputs, training=training)
-        outputs = self.linear(outputs, training=training)
-        pe = self.pe(outputs)
-        outputs = self.do(outputs, training=training)
+        # Encode patches.
+        encoded_patches = self.cct_tokenizer(inputs, training=training)
+
+        # Apply positional embedding.
+        if positional_emb:
+            pos_embed, seq_length = self.cct_tokenizer.positional_embedding(image_size=self.image_size)
+            positions = tf.range(start=0, limit=seq_length, delta=1)
+            position_embeddings = pos_embed(positions)
+            encoded_patches += position_embeddings
+
+        # Calculate Stochastic Depth probabilities.
+        dpr = [x for x in np.linspace(0, self.stochastic_depth_rate, self.transformer_layers)]
+
+        # Create multiple layers of the Transformer block.
+        for i in range(self.transformer_layers):
+            # Layer normalization 1.
+            x1 = tf.keras.layers.LayerNormalization(epsilon=1e-5)(encoded_patches)
+
+            # Create a multi-head attention layer.
+            attention_output = tf.keras.layers.MultiHeadAttention(
+                num_heads=self.cct_num_heads, key_dim=self.projection_dim, dropout=0.1, training=training
+            )(x1, x1)
+
+            # Skip connection 1.
+            attention_output = StochasticDepth(dpr[i], training=training)(attention_output)
+            x2 = layers.Add()([attention_output, encoded_patches])
+
+            # Layer normalization 2.
+            x3 = tf.keras.layers.LayerNormalization(epsilon=1e-5)(x2)
+
+            # MLP.
+            x3 = mlp(x3, hidden_units=transformer_units, dropout_rate=0.1)
+
+            # Skip connection 2.
+            x3 = StochasticDepth(dpr[i], training=training)(x3)
+            encoded_patches = tf.keras.layers.Add()([x3, x2])
+
+        # Apply sequence pooling.
+        representation = tf.keras.layers.LayerNormalization(epsilon=1e-5)(encoded_patches)
+        attention_weights = tf.nn.softmax(layers.Dense(1)(representation), axis=1)
+        weighted_representation = tf.matmul(
+            attention_weights, representation, transpose_a=True
+        )
+        weighted_representation = tf.squeeze(weighted_representation, -2)
+        
+#         outputs = self.conv_subsampling(inputs, training=training)
+#         outputs = self.linear(outputs, training=training)
+#         pe = self.pe(outputs)
+        outputs = self.do(weighted_representation, training=training)
         for cblock in self.conformer_blocks:
             outputs = cblock([outputs, pe], training=training, mask=mask, **kwargs)
         return outputs
