@@ -13,9 +13,9 @@ class CCTTokenizer(layers.Layer):
         padding=1,
         pooling_kernel_size=3,
         pooling_stride=2,
-        num_conv_layers=conv_layers,
+        num_conv_layers=2,
         num_output_channels=[64, 128],
-        positional_emb=positional_emb,
+        positional_emb=True,
         **kwargs,
     ):
         super().__init__(**kwargs)
