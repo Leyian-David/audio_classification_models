@@ -43,10 +43,10 @@ class CCTTokenizer(layers.Layer):
 
     def call(
         self, 
-        images,
+        inputs,
         training=False, 
     ):
-        outputs = self.conv_model(images, training=training)
+        outputs = self.conv_model(inputs, training=training)
         # After passing the images through our mini-network the spatial dimensions
         # are flattened to form sequences.
         reshaped = tf.reshape(
@@ -60,7 +60,7 @@ class CCTTokenizer(layers.Layer):
         # the number of sequences and initialize an `Embedding` layer to
         # compute the positional embeddings later.
         if self.positional_emb:
-            dummy_inputs = tf.ones((1, image_size, image_size, 3))
+            dummy_inputs = tf.ones((1, image_size, image_size, 1))
             dummy_outputs = self.call(dummy_inputs)
             sequence_length = tf.shape(dummy_outputs)[1]
             projection_dim = tf.shape(dummy_outputs)[-1]
