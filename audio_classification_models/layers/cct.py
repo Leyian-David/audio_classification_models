@@ -43,8 +43,8 @@ class CCTTokenizer(layers.Layer):
 
     def call(
         self, 
+        images,
         training=False, 
-        images
     ):
         outputs = self.conv_model(images, training=training)
         # After passing the images through our mini-network the spatial dimensions
