@@ -340,10 +340,6 @@ class ConformerEncoder(tf.keras.Model):
         subsampling={'filters': 144,'kernel_size': 3,'strides': 2},
         subsampling_type='conv2d',
         transformer_layers=2,
-        transformer_units = [
-            projection_dim,
-            projection_dim,
-        ],
         **kwargs,
     ):
         super(ConformerEncoder, self).__init__(name=name, **kwargs)
@@ -433,6 +429,7 @@ class ConformerEncoder(tf.keras.Model):
         self.projection_dim = projection_dim
         self.stochastic_depth_rate = stochastic_depth_rate
         self.transformer_layers = transformer_layers
+        self.transformer_units = [projection_dim, projection_dim]
 
     def call(
         self,
@@ -473,7 +470,7 @@ class ConformerEncoder(tf.keras.Model):
             x3 = tf.keras.layers.LayerNormalization(epsilon=1e-5)(x2)
 
             # MLP.
-            x3 = mlp(x3, hidden_units=transformer_units, dropout_rate=0.1)
+            x3 = mlp(x3, hidden_units=self.transformer_units, dropout_rate=0.1)
 
             # Skip connection 2.
             x3 = StochasticDepth(dpr[i], training=training)(x3)
