@@ -485,12 +485,12 @@ class ConformerEncoder(tf.keras.Model):
         weighted_representation = tf.matmul(
             attention_weights, representation, transpose_a=True
         )
-        weighted_representation = tf.squeeze(weighted_representation, -2)
         
+        outputs = tf.squeeze(weighted_representation, -2)
 #         outputs = self.conv_subsampling(inputs, training=training)
 #         outputs = self.linear(outputs, training=training)
-#         pe = self.pe(outputs)
-        outputs = self.do(weighted_representation, training=training)
+        pe = self.pe(outputs)
+        outputs = self.do(pe, training=training)
         for cblock in self.conformer_blocks:
             outputs = cblock([outputs, pe], training=training, mask=mask, **kwargs)
         return outputs
