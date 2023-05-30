@@ -444,12 +444,12 @@ class ConformerEncoder(tf.keras.Model):
         encoded_patches = self.cct_tokenizer(inputs, training=training)
 
         # Apply positional embedding.
-        if self.positional_emb:
-            projection_dim, seq_length = self.cct_tokenizer.positional_embedding(image_size=self.image_size)
-            positions = tf.range(start=0, limit=seq_length, delta=1)
-            pos_embed = tf.keras.layers.Embedding(input_dim=seq_length, output_dim=projection_dim)
-            position_embeddings = pos_embed(positions)
-            encoded_patches += position_embeddings
+#         if self.positional_emb:
+        projection_dim, seq_length = self.cct_tokenizer.positional_embedding(image_size=self.image_size)
+        positions = tf.range(start=0, limit=seq_length, delta=1)
+        pos_embed = tf.keras.layers.Embedding(input_dim=seq_length, output_dim=projection_dim)
+        position_embeddings = pos_embed(positions)
+        encoded_patches += position_embeddings
 
         # Calculate Stochastic Depth probabilities.
         dpr = [x for x in np.linspace(0, self.stochastic_depth_rate, self.transformer_layers)]
