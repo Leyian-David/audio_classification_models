@@ -467,7 +467,7 @@ class ConformerEncoder(tf.keras.Model):
 
             # Skip connection 1.
             attention_output = StochasticDepth(dpr[i])(attention_output)
-            x2 = layers.Add()([attention_output, encoded_patches])
+            x2 = tf.keras.layers.Add()([attention_output, encoded_patches])
 
             # Layer normalization 2.
             x3 = tf.keras.layers.LayerNormalization(epsilon=1e-5)(x2)
