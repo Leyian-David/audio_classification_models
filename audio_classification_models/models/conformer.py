@@ -426,6 +426,7 @@ class ConformerEncoder(tf.keras.Model):
         self.cct_num_heads = cct_num_heads
         self.cct_tokenizer = CCTTokenizer(num_conv_layers=conv_layers, positional_emb=positional_emb,)
         self.image_size = image_size
+        self.positional_emb = positional_emb
         self.projection_dim = projection_dim
         self.stochastic_depth_rate = stochastic_depth_rate
         self.transformer_layers = transformer_layers
@@ -443,7 +444,7 @@ class ConformerEncoder(tf.keras.Model):
         encoded_patches = self.cct_tokenizer(inputs, training=training)
 
         # Apply positional embedding.
-        if positional_emb:
+        if self.positional_emb:
             pos_embed, seq_length = self.cct_tokenizer.positional_embedding(image_size=self.image_size)
             positions = tf.range(start=0, limit=seq_length, delta=1)
             position_embeddings = pos_embed(positions)
