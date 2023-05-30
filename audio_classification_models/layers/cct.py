@@ -15,7 +15,7 @@ class CCTTokenizer(layers.Layer):
         pooling_stride=2,
         num_conv_layers=2,
         num_output_channels=[64, 128],
-        positional_emb=True,
+        positional_emb=False,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -60,19 +60,19 @@ class CCTTokenizer(layers.Layer):
         # Positional embeddings are optional in CCT. Here, we calculate
         # the number of sequences and initialize an `Embedding` layer to
         # compute the positional embeddings later.
-#         if self.positional_emb:
-        dummy_inputs = tf.ones((1, image_size, image_size, 1))
-        dummy_outputs = self.call(dummy_inputs)
-        sequence_length = tf.shape(dummy_outputs)[1]
-        projection_dim = tf.shape(dummy_outputs)[-1]
+        if self.positional_emb:
+            dummy_inputs = tf.ones((1, image_size, image_size, 1))
+            dummy_outputs = self.call(dummy_inputs)
+            sequence_length = tf.shape(dummy_outputs)[1]
+            projection_dim = tf.shape(dummy_outputs)[-1]
 
-#             embed_layer = tf.keras.layers.Embedding(
-#                 input_dim=sequence_length, output_dim=projection_dim
-#             )
-#             return embed_layer, sequence_length
-        return projection_dim, sequence_length
-#         else:
-#             return None
+    #             embed_layer = tf.keras.layers.Embedding(
+    #                 input_dim=sequence_length, output_dim=projection_dim
+    #             )
+    #             return embed_layer, sequence_length
+            return projection_dim, sequence_length
+        else:
+            return None
 
 # Referred from: github.com:rwightman/pytorch-image-models.
 class StochasticDepth(layers.Layer):
