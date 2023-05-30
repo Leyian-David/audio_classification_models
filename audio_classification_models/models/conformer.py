@@ -481,7 +481,7 @@ class ConformerEncoder(tf.keras.Model):
 
         # Apply sequence pooling.
         representation = tf.keras.layers.LayerNormalization(epsilon=1e-5)(encoded_patches)
-        attention_weights = tf.nn.softmax(layers.Dense(1)(representation), axis=1)
+        attention_weights = tf.nn.softmax(tf.keras.layers.Dense(1)(representation), axis=1)
         weighted_representation = tf.matmul(
             attention_weights, representation, transpose_a=True
         )
