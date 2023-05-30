@@ -462,7 +462,7 @@ class ConformerEncoder(tf.keras.Model):
 
             # Create a multi-head attention layer.
             attention_output = tf.keras.layers.MultiHeadAttention(
-                num_heads=self.cct_num_heads, key_dim=self.projection_dim, dropout=0.1, training=training
+                num_heads=self.cct_num_heads, key_dim=self.projection_dim, dropout=0.1,
             )(x1, x1)
 
             # Skip connection 1.
