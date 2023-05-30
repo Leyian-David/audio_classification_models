@@ -6,6 +6,7 @@ from ..layers.multihead_attention import MultiHeadAttention, RelPositionMultiHea
 from ..layers.positional_encoding import PositionalEncoding, PositionalEncodingConcat
 from ..layers.subsampling import Conv2dSubsampling, CaspNetSubsampling, VggSubsampling
 from ..layers.cct import CCTTokenizer, StochasticDepth, mlp
+import numpy as np
 
 L2 = tf.keras.regularizers.l2(1e-6)
 URL = "https://github.com/awsaf49/audio_classification_models/releases/download/v1.0.8/conformer-encoder.h5"
