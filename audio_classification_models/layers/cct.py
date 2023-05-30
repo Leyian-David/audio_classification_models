@@ -55,6 +55,7 @@ class CCTTokenizer(layers.Layer):
         )
         return reshaped
 
+    @tf.function
     def positional_embedding(self, image_size):
         # Positional embeddings are optional in CCT. Here, we calculate
         # the number of sequences and initialize an `Embedding` layer to
@@ -69,6 +70,7 @@ class CCTTokenizer(layers.Layer):
                 input_dim=sequence_length, output_dim=projection_dim
             )
             return embed_layer, sequence_length
+#             return sequence_length
         else:
             return None
 
