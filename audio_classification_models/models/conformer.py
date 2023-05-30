@@ -445,8 +445,9 @@ class ConformerEncoder(tf.keras.Model):
 
         # Apply positional embedding.
         if self.positional_emb:
-            pos_embed, seq_length = self.cct_tokenizer.positional_embedding(image_size=self.image_size)
+            projection_dim, seq_length = self.cct_tokenizer.positional_embedding(image_size=self.image_size)
             positions = tf.range(start=0, limit=seq_length, delta=1)
+            pos_embed = tf.keras.layers.Embedding(input_dim=sequence_length, output_dim=projection_dim)
             position_embeddings = pos_embed(positions)
             encoded_patches += position_embeddings
 
